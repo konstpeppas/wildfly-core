@@ -942,7 +942,7 @@ class FileSystemDeploymentService implements DeploymentScanner, NotificationHand
                         if (isFailedOrUndeployed(scanContext, directory, fileName, timestamp) || scanContext.firstScanDeployments.contains(fileName)) {
                             continue;
                         }
-
+////////
                         DeploymentMarker marker = deployed.get(fileName);
                         if (marker == null || marker.lastModified != timestamp) {
                             try {
@@ -1132,6 +1132,11 @@ class FileSystemDeploymentService implements DeploymentScanner, NotificationHand
     }
 
     private long getDeploymentTimestamp(File deploymentFile) {
+        return roundTimeToSeconds(getDeploymentTimestampOld(deploymentFile));
+    }
+
+
+    private long getDeploymentTimestampOld(File deploymentFile) {
         if (deploymentFile.isDirectory()) {
             // Scan for most recent file
             long latest = deploymentFile.lastModified();
@@ -1145,6 +1150,10 @@ class FileSystemDeploymentService implements DeploymentScanner, NotificationHand
         } else {
             return deploymentFile.lastModified();
         }
+    }
+
+    private long roundTimeToSeconds(long time) {
+        return time - time%1000;
     }
 
     private boolean isEEArchive(String fileName) {
@@ -1658,7 +1667,7 @@ class FileSystemDeploymentService implements DeploymentScanner, NotificationHand
         private final File parentFolder;
 
         private DeploymentMarker(final long lastModified, boolean archive, File parentFolder) {
-            this.lastModified = lastModified;
+            this.lastModified = lastModified- lastModified%1000;
             this.archive = archive;
             this.parentFolder = parentFolder;
         }
